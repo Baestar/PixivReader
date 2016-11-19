@@ -111,7 +111,7 @@ public class PixivReader
      * is a jpg, it will only create the jpg file. In both cases the jpg file is returned.
      * @param src The direct image link to a Pixiv image.
      * @param title The desired title for the image(s).
-     * @return
+     * @return The written jpg file.
      */
     public File getImage(String src, String title)
 	{
@@ -185,8 +185,8 @@ public class PixivReader
             
             
             el = uA.doc.findFirst("img class=\"original-image\"");
-            
             f = getImage(el.getAtString("data-src"), sanitize(meta.get(0)));
+            
             try
             {
             changeExifMetadata(f, meta);
@@ -220,7 +220,7 @@ public class PixivReader
 	    Vector<String> meta = getMeta();
 	    
 	    
-	  //sets the filePath to artists folder
+	    //sets the filePath to artists folder
 	    File f  = new File(filePath + meta.get(1));
 	    if (!f.exists())
 	    	f.mkdir();
@@ -324,6 +324,7 @@ public class PixivReader
         }
         catch(NotFound e)
         {
+        	System.out.println("This is page 1 of 1");
             getPage(uA.getLocation());
             uA.visit(backURL);
             return;
@@ -549,50 +550,6 @@ public class PixivReader
     		System.err.println(e);
     	}
     	return output;
-    	
-    	/*
-        String fileName = filePath + "hash.xml";
-        boolean output = true;
-        HashMap<String, String> hash = null;
-        try
-        {
-            FileInputStream is = new FileInputStream(fileName);
-            XMLDecoder xmlDec = new XMLDecoder(is);
-            hash = (HashMap<String,String>)xmlDec.readObject();
-            xmlDec.close();
-            output = hash.containsKey(unique);
-        }
-        catch(IOException e)
-        {
-            try
-            {
-                File f = new File(fileName);
-                if(!f.createNewFile())
-                    System.exit(0);
-                output = false;
-                hash = new HashMap<String, String>(10000);
-            }
-            catch(IOException q)
-            {
-                q.printStackTrace();
-            }
-        }
-        if(!output)
-            hash.put(unique,unique);
-        try
-        {
-            FileOutputStream fos = new FileOutputStream(fileName);
-            XMLEncoder xmlEnc = new XMLEncoder(fos);
-            xmlEnc.writeObject(hash);
-            xmlEnc.close();
-            return output;
-        }
-        catch(IOException r)
-        {
-            r.printStackTrace();
-        }
-        return true;
-        */
     }
     @SuppressWarnings("unchecked")
 	private void setHave(String url)throws IOException
@@ -600,7 +557,7 @@ public class PixivReader
     	File f = new File(filePath + "hash.xml");
     	HashMap<String, String> hash;
     	
-    	//reads or creates XML stored HashMap
+    	//reads or creates HashMap
     	if(!f.exists())
     	{
     		f.createNewFile();
