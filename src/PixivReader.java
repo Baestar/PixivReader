@@ -60,7 +60,10 @@ public class PixivReader
     }
     PixivReader(String user, String pass, String filePath)
     {
-    	this.filePath = filePath;
+    	if(filePath.equals(""))
+    		this.filePath = "";
+    	else
+    		this.filePath = filePath + "/";
     	uA = new UserAgent();
     	userName = user;
     	password = pass;

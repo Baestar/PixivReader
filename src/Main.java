@@ -4,14 +4,14 @@ public class Main {
 
 	public static void main(String[] args) 
 	{
-		PixivReader pV = new PixivReader(args[0], args[1]); //first arg User second arg Pass
+		PixivReader pR = new PixivReader(args[0], args[1]); //first arg User second arg Pass
 		
 		try
 		{
 
             for(int i = 2; i< args.length; i++)
             {
-                pV.parseArgs(args[i]);
+                pR.parseArgs(args[i]);
             }
             
         }
