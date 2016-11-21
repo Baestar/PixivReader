@@ -84,6 +84,7 @@ public class PixivReader implements Runnable
     	}
     	catch(InterruptedException e)
     	{
+    		System.exit(0);
     		return;
     	}
     	String arg = nextToFetch();
@@ -94,6 +95,7 @@ public class PixivReader implements Runnable
     	catch(JauntException e)
     	{
     		System.err.println(e);
+    		run();
     	}
 		run();
 	}
@@ -108,7 +110,7 @@ public class PixivReader implements Runnable
      * @param arg A signaling letter, followed by data to be passed on
      * @throws JauntException
      */
-    public void parseArg(String arg)throws JauntException //TODO error checking, if thread dies the program can't finish
+    public void parseArg(String arg)throws JauntException
     {
         String function = arg.substring(0,1);
         String data = arg.substring(1,arg.length());
@@ -620,6 +622,6 @@ public class PixivReader implements Runnable
     }
     private synchronized void delay()throws InterruptedException
     {
-    	wait(100); //TODO leaves window to close program while thread is waiting
+    	wait(1000);
     }
 }

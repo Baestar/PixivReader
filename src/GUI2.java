@@ -29,7 +29,6 @@ public class GUI2 {
 	GUI2()
 	{
 		jFrame = new JFrame("Pixiv Reader");
-		jFrame.setSize(200, 300);
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
@@ -44,13 +43,14 @@ public class GUI2 {
 	private void loginPage()
 	{
 		jFrame.setLayout(new GridBagLayout());
-		jFrame.setMinimumSize(new Dimension(100,200));
+		jFrame.setSize(500, 200);
+		jFrame.setMinimumSize(new Dimension(450,200));
 		JLabel title = new JLabel("Pixiv Reader");
 		JLabel lblUser = new JLabel("Pixiv Username");
 		JLabel lblPass = new JLabel("Pixiv Password");
 		JLabel lblPath = new JLabel("Filepath (Optional)");
 		JTextField boxUser = new JTextField(20);
-		JPasswordField boxPass = new JPasswordField(20); //TODO Make password work
+		JPasswordField boxPass = new JPasswordField(20);
 		JTextField boxPath = new JTextField(20);
 		
 		JButton submit = new JButton("Submit Login");
@@ -117,10 +117,19 @@ public class GUI2 {
 		
 		jFrame.setVisible(true);
 	}
-	private void dataPage()
+	private void dataPage()//TODO add feedback to user
 	{
+		try//TODO not this
+		{
+		process.notify();
+		}
+		catch(IllegalMonitorStateException e)
+		{
+			
+		}
 		jFrame.getContentPane().removeAll();
 		jFrame.getContentPane().repaint();
+		jFrame.getContentPane().validate();
 		jFrame.setLayout(new BorderLayout());
 		jFrame.setSize(500, 200);
 		jFrame.setMinimumSize(new Dimension(450,200));
@@ -347,7 +356,7 @@ public class GUI2 {
 	}
 	synchronized private void lastPage()
 	{
-		System.out.println("endTest");
+		
 		jFrame.getContentPane().removeAll();
 		jFrame.getContentPane().repaint();
 		jFrame.setLayout(new BorderLayout());
@@ -355,19 +364,8 @@ public class GUI2 {
 		JProgressBar bar = new JProgressBar();
 			bar.setIndeterminate(true);
 		jFrame.add(bar, BorderLayout.CENTER);
-		jFrame.getContentPane().validate();//TODO Not displaying last page.
+		jFrame.getContentPane().validate();
 		
-		while(process.isAlive())
-		{
-			try {
-				Thread.sleep(1000); //TODO can't exit program during this join
-			} 
-			catch (InterruptedException e) 
-			{
-				e.printStackTrace();
-			}
-		}
-		System.exit(0);
 		
 		
 	}
