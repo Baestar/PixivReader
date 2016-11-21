@@ -12,6 +12,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -49,7 +50,7 @@ public class GUI2 {
 		JLabel lblPass = new JLabel("Pixiv Password");
 		JLabel lblPath = new JLabel("Filepath (Optional)");
 		JTextField boxUser = new JTextField(20);
-		JTextField boxPass = new JTextField(20); //TODO Make password work
+		JPasswordField boxPass = new JPasswordField(20); //TODO Make password work
 		JTextField boxPath = new JTextField(20);
 		
 		JButton submit = new JButton("Submit Login");
@@ -57,7 +58,7 @@ public class GUI2 {
 				public void actionPerformed(ActionEvent e){
 					
 					jFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					pR = new PixivReader(boxUser.getText(), boxPass.getText(), boxPath.getText());
+					pR = new PixivReader(boxUser.getText(), String.valueOf(boxPass.getPassword()), boxPath.getText());
 					process = new Thread(pR);
 					process.start();
 					jFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
