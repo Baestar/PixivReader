@@ -329,7 +329,8 @@ public class PixivReader implements Runnable
 	        count++;
 	        el = el.findFirst("a");
 	        String nextPage = el.getAtString("href");
-	        if(el.getAtString("class").equals("work  _work manga multiple "))
+	        if(el.getAtString("class").equals("work  _work manga multiple ") ||
+	        		el.getAtString("class").equals("work  _work multiple "))
 	            getMulti(nextPage);
 	        else if(el.getAtString("class").equals("work  _work "))
 	            getSingle(nextPage);
