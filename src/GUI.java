@@ -153,7 +153,7 @@ public class GUI extends JFrame implements ActionListener{
 		{
 		for(int i = 0; i < v.size(); i++)
 		{
-			pR.parseArgs(v.get(i));
+			pR.parseArg(v.get(i));
 		}
 		v.removeAllElements();
 		}

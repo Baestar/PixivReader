@@ -41,19 +41,21 @@ import com.jaunt.NotFound;
 import com.jaunt.UserAgent;
 import com.jaunt.component.Form;
 
-public class PixivReader
+public class PixivReader implements Runnable
 {
 	//fields
     String filePath;
     UserAgent uA;
     String userName;
     String password;
+    private Vector<String> toFetch;
     
     //constructors
     PixivReader(String user, String pass)
     {
     	filePath = "";
     	uA = new UserAgent();
+    	toFetch = new Vector<String>(30);
     	userName = user;
     	password = pass;
     	login();
@@ -65,12 +67,37 @@ public class PixivReader
     	else
     		this.filePath = filePath + "/";
     	uA = new UserAgent();
+    	toFetch = new Vector<String>(30);
     	userName = user;
     	password = pass;
     	login();
     }
     
-    //functions
+    @Override
+	public void run() {
+    	try
+    	{
+	    	while(toFetch.isEmpty())
+	    	{
+	    		delay();
+	    	}
+    	}
+    	catch(InterruptedException e)
+    	{
+    		return;
+    	}
+    	String arg = nextToFetch();
+    	try
+    	{
+    	parseArg(arg);
+    	}
+    	catch(JauntException e)
+    	{
+    		System.err.println(e);
+    	}
+		run();
+	}
+	//functions
     /**
      * Takes a string beginning with one of the following characters "s" for Single, 
      * "m" for Multi, "p" for Page, "a" for Artist or "u" for User, or "f" for Filepath.
@@ -81,7 +108,7 @@ public class PixivReader
      * @param arg A signaling letter, followed by data to be passed on
      * @throws JauntException
      */
-    public void parseArgs(String arg)throws JauntException
+    public void parseArg(String arg)throws JauntException //TODO error checking, if thread dies the program can't finish
     {
         String function = arg.substring(0,1);
         String data = arg.substring(1,arg.length());
@@ -358,7 +385,6 @@ public class PixivReader
 	        System.out.println("Login Page Reached");
 	        System.out.println(uA.getLocation());
 	        
-	
 	        Form login = uA.doc.getForm(0);
 	        login.set("pixiv_id", userName);
 	        login.set("password", password);
@@ -583,5 +609,16 @@ public class PixivReader
         xmlEnc.writeObject(hash);
         xmlEnc.close();
     }
-    
+    private synchronized String nextToFetch()
+    {
+    	return toFetch.remove(0);
+    }
+    public synchronized void addToFetch(String s)
+    {
+    	toFetch.add(s);
+    }
+    private synchronized void delay()throws InterruptedException
+    {
+    	wait(100); //TODO leaves window to close program while thread is waiting
+    }
 }

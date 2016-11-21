@@ -1,25 +1,25 @@
+import java.util.Scanner;
+
 import com.jaunt.JauntException;
 
 public class Main {
 
-	public static void main(String[] args) 
+	public static void main(String[] args) throws JauntException
 	{
 		PixivReader pR = new PixivReader(args[0], args[1]); //first arg User second arg Pass
-		
-		try
-		{
+		Thread processer = new Thread(pR);
+		processer.start();
+		Scanner scanner = new Scanner(System.in);
+	    while(true)
+	    {
+			String cmd = scanner.next();
+		    if(cmd.equals("q"))
+		    	break;
+		    pR.addToFetch(cmd);
 
-            for(int i = 2; i< args.length; i++)
-            {
-                pR.parseArgs(args[i]);
-            }
-            
-        }
-        catch(JauntException e)
-        {
-            System.err.println(e);
-        }
-
+	    }
+	    processer.interrupt();
+	    scanner.close();
 	}
 
 }
