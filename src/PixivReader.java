@@ -380,10 +380,16 @@ public class PixivReader implements Runnable
     }
     private void login()
 	{
-	    try{
+	    try
+	    {
 	    	File f = new File("cookies.obj");
 	    	uA.cookies.loadCookies(f);
+	    }
+	    catch(IOException | ClassNotFoundException e)
+	    {
 	    	
+	    }
+    	try{
 	        uA.visit("http://www.pixiv.net/");
 	        Element el;
 	        el = uA.doc.findFirst("body");
@@ -408,7 +414,7 @@ public class PixivReader implements Runnable
 	        System.out.println(uA.getLocation());
 	        
 	    }
-	    catch(JauntException | IOException | ClassNotFoundException e)
+	    catch(JauntException e)
 	    {
 	         System.err.println(e);
 	    }
@@ -572,7 +578,7 @@ public class PixivReader implements Runnable
         return f;
     }
     @SuppressWarnings("unchecked")
-	private boolean haveAlready(String unique)
+	private boolean haveAlready(String unique) //TODO change hash to use artID?
     {
     	File f = new File(filePath + "hash.xml");
     	boolean output = false;
