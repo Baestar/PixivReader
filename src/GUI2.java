@@ -40,7 +40,7 @@ public class GUI2 {
 		gui.loginPage();
 		
 	}
-	private void loginPage()
+	private void loginPage() //TODO add "remember me" / Don't require login with cookies
 	{
 		jFrame.setLayout(new GridBagLayout());
 		jFrame.setSize(500, 200);
@@ -119,14 +119,7 @@ public class GUI2 {
 	}
 	private void dataPage()//TODO add feedback to user
 	{
-		try//TODO not this
-		{
-		process.notify();
-		}
-		catch(IllegalMonitorStateException e)
-		{
-			
-		}
+		
 		jFrame.getContentPane().removeAll();
 		jFrame.getContentPane().repaint();
 		jFrame.getContentPane().validate();

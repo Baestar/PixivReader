@@ -48,7 +48,7 @@ public class PixivReader implements Runnable
     UserAgent uA;
     String userName;
     String password;
-    private Vector<String> toFetch;
+    private volatile Vector<String> toFetch;
     
     //constructors
     PixivReader(String user, String pass)
@@ -75,19 +75,27 @@ public class PixivReader implements Runnable
     
     @Override
 	public void run() {
-    	try
+    	String arg;
+    	synchronized(toFetch)
     	{
-	    	while(toFetch.isEmpty())
-	    	{
-	    		delay();
-	    	}
+		    while(toFetch.isEmpty())
+		    {
+		    	try
+			    {
+		    		toFetch.wait();
+			    }
+		    	catch(InterruptedException e)
+			    {
+		    		try
+		    		{
+		    		uA.close();
+		    		}
+		    		catch(IOException er){}
+			    	System.exit(0);
+			    }
+		    }
+	    	arg = toFetch.remove(0);
     	}
-    	catch(InterruptedException e)
-    	{
-    		System.exit(0);
-    		return;
-    	}
-    	String arg = nextToFetch();
     	try
     	{
     	parseArg(arg);
@@ -95,7 +103,6 @@ public class PixivReader implements Runnable
     	catch(JauntException e)
     	{
     		System.err.println(e);
-    		run();
     	}
 		run();
 	}
@@ -349,39 +356,43 @@ public class PixivReader implements Runnable
         http.setNameValuePair("p", "1");
         uA.send(http);
         Element el;
+        int page = 1;
         
-        
-        
-        try{
-         el = uA.doc.findFirst("ul class=\"page-list\"");
-        }
-        catch(NotFound e)
+        while(true)
         {
-        	System.out.println("This is page 1 of 1");
-            getPage(uA.getLocation());
-            uA.visit(backURL);
-            return;
-        }
-        Elements els = el.findEvery("a");
-        int size = els.size()+1;
-        
-        for(int i = 1; i <= size; i++)
-        {
-            System.out.println("This is page "+ i + " of " + size + ".");
-            http.setNameValuePair("p", ""+i);
-            uA.send(http);
-            getPage(uA.getLocation());
+        	System.out.println("This is page " + page + ".");
+        	getPage(uA.getLocation());
+        	try
+        	{
+        		el = uA.doc.findFirst("ul class=\"page-list\"");
+        		el = el.findFirst("li class=\"current\"");
+        		el = el.nextSiblingElement();
+        	}
+        	catch(NotFound e) //last page
+        	{
+        		break;
+        	}
+        	page++;
+        	http.setNameValuePair("p", String.valueOf(page));
+        	uA.send(http);
         }
         uA.visit(backURL);
     }
     private void login()
 	{
 	    try{
+	    	File f = new File("cookies.obj");
+	    	uA.cookies.loadCookies(f);
+	    	
 	        uA.visit("http://www.pixiv.net/");
 	        Element el;
 	        el = uA.doc.findFirst("body");
-	        if(!el.getAtString("class").equals("not-logged-in"))
+	        if(!el.getAtString("class").equals("not-logged-in")) //Already logged in
+	        {
+	        	System.out.println("Login Complete");
 	            return;
+	        }
+	        
 	        el = uA.doc.findFirst("a class=\"signup-form__submit--login\"");
 	        String nextURL = el.getAt("href");
 	        uA.visit(nextURL);
@@ -392,11 +403,12 @@ public class PixivReader implements Runnable
 	        login.set("pixiv_id", userName);
 	        login.set("password", password);
 	        login.submit();
+	        
 	        System.out.println("Login Complete");
 	        System.out.println(uA.getLocation());
 	        
 	    }
-	    catch(JauntException e)
+	    catch(JauntException | IOException | ClassNotFoundException e)
 	    {
 	         System.err.println(e);
 	    }
@@ -451,7 +463,7 @@ public class PixivReader implements Runnable
 	        throws IOException, ImageReadException, ImageWriteException {
 	    File temp = new File("temp0123456789.jpg");
 	    try (FileOutputStream fos = new FileOutputStream(temp);
-	            OutputStream os = new BufferedOutputStream(fos);) {
+	            OutputStream os = new BufferedOutputStream(fos);) { //TODO Look into downcast?
 	        
 	        TiffOutputSet outputSet = null;
 	
@@ -612,16 +624,13 @@ public class PixivReader implements Runnable
         xmlEnc.writeObject(hash);
         xmlEnc.close();
     }
-    private synchronized String nextToFetch()
+    public void addToFetch(String s)
     {
-    	return toFetch.remove(0);
+    	synchronized(toFetch)
+    	{
+	    	toFetch.add(s);
+	    	toFetch.notify();
+    	}
     }
-    public synchronized void addToFetch(String s)
-    {
-    	toFetch.add(s);
-    }
-    private synchronized void delay()throws InterruptedException
-    {
-    	wait(1000);
-    }
+    
 }
